@@ -87,19 +87,35 @@ class TabuSearch:
 
     def generate_neighbors(self, candidate, dont_generate_all=False):
         neighbors = PriorityQueue()
-        x = 0
-        if dont_generate_all:
-            x = int(self.sol_size / 2) # Only generate half the neighbors.
-        for i in range(x, self.sol_size):
-            for j in range(i + 1, self.sol_size):
-                new_neighbor = candidate.copy()
-                self.swap(new_neighbor, i, j)
-                cost = self.calculate_cost(new_neighbor)
-                if self.frequency_based is True:
-                    if tuple(new_neighbor) in self.frequency:
-                        cost += self.frequency[tuple(new_neighbor)]*10
-                indices_swapped = [i,j]
-                neighbors.put(PriorityEntry(new_neighbor, cost, indices_swapped))
+        if dont_generate_all: 
+            # Only generate half the neighbors.
+            swapped = []
+            while (neighbors.qsize() != 190/2): # 190 is 20 choose 2, that is the max number of neighbors. We want half.
+                # Generate neighbors randomly.
+                swap_1 = random.randint(0, self.sol_size-1)
+                swap_2 = random.randint(0, self.sol_size-1)
+                indices_swapped = [swap_1, swap_2]
+                indices_swapped.sort() # Need to sort for the check below.
+
+                # Ensure this swap has not already been done, or there will be duplicate neighbors.
+                if tuple(indices_swapped) not in swapped:
+                    swapped.append(tuple(indices_swapped))
+                    new_neighbor = candidate.copy()
+                    self.swap(new_neighbor, indices_swapped[0], indices_swapped[1])
+                    cost = self.calculate_cost(new_neighbor)
+                    neighbors.put(PriorityEntry(new_neighbor, cost, indices_swapped))
+        else: 
+            # Generate all neighbors.
+            for i in range(0, self.sol_size):
+                for j in range(i + 1, self.sol_size):
+                    new_neighbor = candidate.copy()
+                    self.swap(new_neighbor, i, j)
+                    cost = self.calculate_cost(new_neighbor)
+                    if self.frequency_based is True:
+                        if tuple(new_neighbor) in self.frequency:
+                            cost += self.frequency[tuple(new_neighbor)]*10
+                    indices_swapped = [i,j]
+                    neighbors.put(PriorityEntry(new_neighbor, cost, indices_swapped))
         return neighbors
 
     def run_tabu_search(self):
@@ -122,7 +138,7 @@ class TabuSearch:
             candidate = neighbors.get() # Since this is a PriorityQueue, the best solution is at the front.
 
             if candidate.swapped_indices in tabu_list:
-                # Candidate is a result of a swap that is tabu. Get next best candidate that ISN'T tabu.
+                # Candidate is a result of a swap that is tabu.
                 if self.use_aspiration_1 is True:
                     # Best solution so far aspiration criteria.
                     # Even if this candidate is tabu, accept it if it the the best solution so far.
@@ -233,12 +249,12 @@ def test_basic_tabu():
 
 def main():
     # Note: Optimal solution is 2570 (or 1285 if you do not double the flows)
-    test_tabu_with_ten_different_initial_solutions()
-    test_tabu_with_smaller_and_larger_tabu_tenure()
-    test_dynamic_tabu_list_length()
-    test_tabu_with_aspiration_criteria()
+    # test_tabu_with_ten_different_initial_solutions()
+    # test_tabu_with_smaller_and_larger_tabu_tenure()
+    # test_dynamic_tabu_list_length()
+    # test_tabu_with_aspiration_criteria()
     test_tabu_using_less_than_whole_neighborhood()
-    test_tabu_with_frequency_based_tabu_list()
+    # test_tabu_with_frequency_based_tabu_list()
 
 
 if __name__== "__main__":  # calling the main function, where the program starts running
