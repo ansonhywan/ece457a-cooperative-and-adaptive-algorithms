@@ -155,8 +155,7 @@ class Particle_Swarm_Optimization:
         self.plot_results(average_fitness_per_iter, best_fitness_per_iter)
         
 def test_PSO(w, c1, c2, pop_size, max_iter, is_linear=False, verbose=False):
-    Particle_Swarm_Optimization(w, c1, c2, pop_size, max_iter, is_linear, verbose).run_PSO()
-
+    Particle_Swarm_Optimization(w, c1, c2, pop_size, max_iter, is_linear, verbose).run_PSO()UP
         
 def main():
     max_iter = 300
